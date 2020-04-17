@@ -62,6 +62,7 @@ public class DeviceListFragment extends Fragment implements AbsListView.OnItemCl
                 // Create a new device item
                 DeviceItem newDevice = new DeviceItem(device.getName(), device.getAddress(), "false");
                 int  rssi = intent.getShortExtra(device.EXTRA_RSSI,Short.MIN_VALUE);
+                Log.d("DEVICELIST", "deviceName:["+device.getName()+"], rssi:["+rssi+"], mac:["+device.getAddress()+"],\n");
                 newDevice.setRssi(rssi);
                 newDevice.setDistanceInMeters(RssiTOMeters.ConvertRssiToMeters(rssi));
                 // Add it to our adapter
