@@ -1,6 +1,6 @@
 package com.ed.btscanner;
 
-public class RssiTOMeters {
+public class RssiToMeters {
     public static double ConvertRssiToMeters(int rssi){
        // double distance = 0;
         if(rssi>-45){

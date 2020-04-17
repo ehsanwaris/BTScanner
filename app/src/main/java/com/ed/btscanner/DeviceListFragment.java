@@ -23,6 +23,7 @@ import android.widget.ToggleButton;
 import androidx.fragment.app.Fragment;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -51,7 +52,7 @@ public class DeviceListFragment extends Fragment implements AbsListView.OnItemCl
      * Views.
      */
     private ArrayAdapter<DeviceItem> mAdapter;
-
+    private List<String>deviceMACs = new ArrayList<>();
 
     private final BroadcastReceiver bReciever = new BroadcastReceiver() {
         public void onReceive(Context context, Intent intent) {
@@ -63,8 +64,13 @@ public class DeviceListFragment extends Fragment implements AbsListView.OnItemCl
                 DeviceItem newDevice = new DeviceItem(device.getName(), device.getAddress(), "false");
                 int  rssi = intent.getShortExtra(device.EXTRA_RSSI,Short.MIN_VALUE);
                 Log.d("DEVICELIST", "deviceName:["+device.getName()+"], rssi:["+rssi+"], mac:["+device.getAddress()+"],\n");
+                if(deviceMACs.contains(device.getAddress())){
+                    Log.d("DEVICELIST", "deviceName:["+device.getName()+"], Already Added,\n");
+                    return;
+                }
+                deviceMACs.add(device.getAddress());
                 newDevice.setRssi(rssi);
-                newDevice.setDistanceInMeters(RssiTOMeters.ConvertRssiToMeters(rssi));
+                newDevice.setDistanceInMeters(RssiToMeters.ConvertRssiToMeters(rssi));
                 // Add it to our adapter
                 mAdapter.add(newDevice);
                 mAdapter.notifyDataSetChanged();
@@ -139,6 +145,7 @@ public class DeviceListFragment extends Fragment implements AbsListView.OnItemCl
                 } else {
                     getActivity().unregisterReceiver(bReciever);
                     bTAdapter.cancelDiscovery();
+                    deviceMACs.clear();
                 }
             }
         });

@@ -31,6 +31,8 @@ public class DeviceListAdapter extends ArrayAdapter<DeviceItem>{
      */
     private class ViewHolder{
         TextView titleText;
+        TextView distance;
+        TextView rssi;
     }
 
     /**
@@ -56,11 +58,15 @@ public class DeviceListAdapter extends ArrayAdapter<DeviceItem>{
         viewToUse = mInflater.inflate(R.layout.device_list_item, null);
         holder = new ViewHolder();
         holder.titleText = (TextView)viewToUse.findViewById(R.id.titleTextView);
+        holder.rssi = (TextView)viewToUse.findViewById(R.id.txtRSSI);
+        holder.distance = (TextView)viewToUse.findViewById(R.id.txtDistance);
         viewToUse.setTag(holder);
 
         macAddress = (TextView)viewToUse.findViewById(R.id.macAddress);
         line = (View)viewToUse.findViewById(R.id.line);
-        holder.titleText.setText("Name:["+item.getDeviceName()+"],Distance::["+item.getDistanceInMeters()+" m], RSSI:[ "+item.getRssi()+"]");
+        holder.titleText.setText("Name:["+item.getDeviceName()+"]");
+        holder.distance.setText("Distance:["+item.getDistanceInMeters()+" m]");
+        holder.rssi.setText("RSSI:["+item.getRssi()+"]");
         macAddress.setText(item.getAddress());
 
         if (item.getDeviceName()!=null && item.getDeviceName().toString() == "No Devices") {
