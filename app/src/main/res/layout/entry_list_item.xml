@@ -41,14 +41,6 @@
             android:textColor="#fff"
             android:textSize="16dp"
             android:textStyle="bold" />
-        <Button
-            android:id="@+id/btnStartTest"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:text="Start Test With This Device">
-
-        </Button>
 
     </RelativeLayout>
 
@@ -71,7 +63,7 @@
 
     <TextView
 
-        android:id="@+id/macAddress"
+        android:id="@+id/testName"
         android:layout_width="match_parent"
         android:layout_height="30dp"
         android:layout_below="@+id/txtDistance"
@@ -81,7 +73,7 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentBottom="true"
         android:layout_marginTop="5dp"
-        android:text="MAC Address"
+        android:text="Test Name"
         android:textColor="#fff"
         android:textOff="@string/button_disconnect"
         android:textOn="@string/button_connect" />
@@ -90,7 +82,7 @@
         android:id="@+id/line"
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:layout_below="@+id/macAddress"
+        android:layout_below="@+id/testName"
         android:layout_marginTop="5dp"
         android:background="#fff"
         android:visibility="gone" />

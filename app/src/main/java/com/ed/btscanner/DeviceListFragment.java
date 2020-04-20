@@ -16,12 +16,19 @@ import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.CompoundButton;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import androidx.fragment.app.Fragment;
 
+import com.ed.btscanner.database.DBHelper;
+import com.ed.btscanner.database.model.RSSIEntryModel;
+
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -41,7 +48,12 @@ public class DeviceListFragment extends Fragment implements AbsListView.OnItemCl
 
     private OnFragmentInteractionListener mListener;
     private static BluetoothAdapter bTAdapter;
-
+    EditText etTestName;
+    EditText etDeviceName;
+    EditText etRSSI;
+    EditText etDistance;
+    EditText etOrientation;
+    EditText etMACAddress;
     /**
      * The fragment's ListView/GridView.
      */
@@ -53,6 +65,9 @@ public class DeviceListFragment extends Fragment implements AbsListView.OnItemCl
      */
     private ArrayAdapter<DeviceItem> mAdapter;
     private List<String>deviceMACs = new ArrayList<>();
+    public static String selectedDeviceMacAddress = null;
+    public static String selectedDeviceName = null;
+
 
     private final BroadcastReceiver bReciever = new BroadcastReceiver() {
         public void onReceive(Context context, Intent intent) {
@@ -64,10 +79,22 @@ public class DeviceListFragment extends Fragment implements AbsListView.OnItemCl
                 DeviceItem newDevice = new DeviceItem(device.getName(), device.getAddress(), "false");
                 int  rssi = intent.getShortExtra(device.EXTRA_RSSI,Short.MIN_VALUE);
                 Log.d("DEVICELIST", "deviceName:["+device.getName()+"], rssi:["+rssi+"], mac:["+device.getAddress()+"],\n");
+
+                if(selectedDeviceMacAddress!=null){
+                    if(newDevice.getAddress().equalsIgnoreCase(selectedDeviceMacAddress)){
+                        EditText et =  getActivity().findViewById(R.id.etRSSIForTest);
+                        et.setText(rssi+"");
+                        ((TextView)getActivity().findViewById(R.id.labelMessage)).setText("Updated at: "+new Timestamp(System.currentTimeMillis()));
+
+                    }
+                }
+
                 if(deviceMACs.contains(device.getAddress())){
                     Log.d("DEVICELIST", "deviceName:["+device.getName()+"], Already Added,\n");
                     return;
                 }
+
+
                 deviceMACs.add(device.getAddress());
                 newDevice.setRssi(rssi);
                 newDevice.setDistanceInMeters(RssiToMeters.ConvertRssiToMeters(rssi));
@@ -127,6 +154,14 @@ public class DeviceListFragment extends Fragment implements AbsListView.OnItemCl
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_deviceitem_list, container, false);
+        etTestName = view.findViewById(R.id.etTestName);
+        etDeviceName = view.findViewById(R.id.etDeviceName);
+        etDistance = view.findViewById(R.id.etDistance);
+        etMACAddress = view.findViewById(R.id.etMACAddress);
+        etOrientation = view.findViewById(R.id.etOrientation);
+        etRSSI = view.findViewById(R.id.etRSSIForTest);
+
+        final LinearLayout layoutTest = view.findViewById(R.id.layoutTest);
         ToggleButton scan = (ToggleButton) view.findViewById(R.id.scan);
         // Set the adapter
         mListView = (AbsListView) view.findViewById(android.R.id.list);
@@ -150,6 +185,51 @@ public class DeviceListFragment extends Fragment implements AbsListView.OnItemCl
             }
         });
 
+        if(selectedDeviceMacAddress==null){
+            layoutTest.setVisibility(View.GONE);
+        }else{
+            etMACAddress.setText(selectedDeviceMacAddress);
+            etDeviceName.setText(selectedDeviceName);
+            mListView.setVisibility(View.GONE);
+        }
+        view.findViewById(R.id.btnStopTest).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                selectedDeviceMacAddress =null;
+                selectedDeviceName = null;
+
+                mListView.setVisibility(View.VISIBLE);
+                layoutTest.setVisibility(View.GONE);
+            }
+        });
+        view.findViewById(R.id.btnSaveRecord).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String rssi = etRSSI.getText().toString();
+                String device = etDeviceName.getText().toString();
+                String testName = etTestName.getText().toString();
+                String distance = etDistance.getText().toString();
+                String orientation = etOrientation.getText().toString();
+                if (rssi.isEmpty()||testName.isEmpty() || distance.isEmpty() || orientation.isEmpty()) {
+                    Toast.makeText(getContext(), "Please enter all fields.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                RSSIEntryModel entry = new RSSIEntryModel();
+                entry.setTest_name(testName);
+                entry.setTime_stamp(System.currentTimeMillis());
+                entry.setOrientation(orientation);
+                entry.setRssi_value(Integer.parseInt(rssi));
+                entry.setDistance(Double.parseDouble(distance));
+                entry.setDevice_name(device);
+
+                long res = DBHelper.get(getContext()).AddRSSIEntry(entry);
+                if (res == -1) {
+                    Toast.makeText(getContext(), "Error Saving Record", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(getContext(), "Saved Successfully", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
         return view;
     }
 
@@ -164,6 +244,7 @@ public class DeviceListFragment extends Fragment implements AbsListView.OnItemCl
         }
     }
 
+
     @Override
     public void onDetach() {
         super.onDetach();
@@ -175,6 +256,7 @@ public class DeviceListFragment extends Fragment implements AbsListView.OnItemCl
 
         Log.d("DEVICELIST", "onItemClick position: " + position +
                 " id: " + id + " name: " + deviceItemList.get(position).getDeviceName() + "\n");
+
         if (null != mListener) {
             // Notify the active callbacks interface (the activity, if the
             // fragment is attached to one) that an item has been selected.
