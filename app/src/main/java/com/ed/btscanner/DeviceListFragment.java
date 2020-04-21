@@ -162,7 +162,7 @@ public class DeviceListFragment extends Fragment implements AbsListView.OnItemCl
         etRSSI = view.findViewById(R.id.etRSSIForTest);
 
         final LinearLayout layoutTest = view.findViewById(R.id.layoutTest);
-        ToggleButton scan = (ToggleButton) view.findViewById(R.id.scan);
+        final ToggleButton scan = (ToggleButton) view.findViewById(R.id.scan);
         // Set the adapter
         mListView = (AbsListView) view.findViewById(android.R.id.list);
         ((AdapterView<ListAdapter>) mListView).setAdapter(mAdapter);
@@ -226,6 +226,10 @@ public class DeviceListFragment extends Fragment implements AbsListView.OnItemCl
                 if (res == -1) {
                     Toast.makeText(getContext(), "Error Saving Record", Toast.LENGTH_SHORT).show();
                 } else {
+                    if(scan.isChecked()) {
+                        scan.setChecked(false);
+                        etRSSI.setText("");
+                    }
                     Toast.makeText(getContext(), "Saved Successfully", Toast.LENGTH_SHORT).show();
                 }
             }

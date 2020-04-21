@@ -93,10 +93,9 @@ public class BTScannerDatabase {
 
     public List<RSSIEntryModel> GETALLEntries(SQLiteDatabase db) {
         Cursor res = db.rawQuery("SELECT * FROM " + Table +" ORDER BY "+ID+" DESC" , null);
-        res.moveToFirst();
+        //res.moveToFirst();
         List<RSSIEntryModel> entries= new ArrayList<>();
         while(res.moveToNext()){
-        if (res.isAfterLast() == false) {
             RSSIEntryModel entry = new RSSIEntryModel();
 
             entry.setId(res.getInt(res.getColumnIndex(this.ID)));
@@ -109,7 +108,6 @@ public class BTScannerDatabase {
 
 
             entries.add(entry);
-        }
         }
         return entries;
     }

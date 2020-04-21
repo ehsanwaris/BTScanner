@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -222,6 +223,20 @@ public class ListActivity extends AppCompatActivity implements DeviceListFragmen
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+
+            Uri selectedUri = Uri.parse( getApplication().getExternalFilesDir("csv").getPath());
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            intent.setDataAndType(selectedUri, "resource/folder");
+            if (intent.resolveActivityInfo(getPackageManager(), 0) != null)
+            {
+                startActivity(intent);
+            }
+            else
+            {
+                Toast.makeText(getApplicationContext(),"Can't open path. Please install a file explorer app",Toast.LENGTH_SHORT).show();
+                // if you reach this place, it means there is no any file
+                // explorer app installed on your device
+            }
             return true;
         }
         if (id == R.id.action_view_records) {
